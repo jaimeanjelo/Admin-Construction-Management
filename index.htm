@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html>
 <head>
@@ -401,3 +402,408 @@
     </script>
 </body>
 </html>
+=======
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>MoreOn Construction — Admin</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        :root{
+            --card-bg:#fff;
+            --card-border:#e6e6e6;
+            --accent:#1e88e5;
+            --muted:#666;
+            --gap:12px;
+        }
+        body{
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 18px auto;
+            padding: 18px;
+            background:#f7f9fc;
+            color:#222;
+        }
+        h1{margin-top:0;font-size:20px}
+        .card{
+            background:var(--card-bg);
+            border:1px solid var(--card-border);
+            padding:14px;
+            border-radius:10px;
+            margin-bottom:var(--gap);
+            box-shadow:0 1px 2px rgba(20,20,20,0.02);
+        }
+        label{font-size:13px;color:var(--muted)}
+        input,select,textarea{
+            padding:8px 10px;
+            margin:6px 0 10px 0;
+            border:1px solid #d1d7df;
+            border-radius:8px;
+            font-size:14px;
+            width:100%;
+            box-sizing:border-box;
+            background:#fff;
+        }
+        textarea{min-height:80px;resize:vertical}
+        .row{display:flex;gap:var(--gap);flex-wrap:wrap;align-items:center}
+        /* make this row stack vertically for the auth form */
+        .row.auth-stack{flex-direction:column;align-items:stretch}
+        .col{flex:1}
+        .small{flex:0 0 160px;max-width:160px}
+        button{
+            display:inline-block;
+            padding:8px 12px;
+            border-radius:8px;
+            border:none;
+            background:var(--accent);
+            color:#fff;
+            cursor:pointer;
+            font-weight:600;
+            margin:6px 6px 0 0;
+        }
+        button.ghost{background:transparent;color:var(--accent);border:1px solid var(--card-border)}
+        button.full{width:100%}
+        .role-badge{display:inline-block;padding:6px 10px;border-radius:12px;background:#eef3ff;color:#0b4a90;margin:4px;font-size:13px}
+        .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:8px}
+        .project-card{padding:10px;border-radius:8px;border:1px solid #eceff3;background:#fff}
+        .muted{color:var(--muted);font-size:13px}
+        .helper{font-size:12px;color:#888;margin-top:6px}
+        .center{text-align:center}
+
+        /* small show/hide password toggle */
+        .pwd-wrap{display:flex;gap:8px;align-items:center}
+        .pwd-wrap input{flex:1;margin:6px 0 10px 0}
+        .pwd-toggle{
+            padding:6px 8px;
+            border-radius:8px;
+            border:1px solid var(--card-border);
+            background:transparent;
+            color:var(--accent);
+            cursor:pointer;
+            font-weight:600;
+        }
+    </style>
+</head>
+<body>
+    <h1>MoreOn Construction — Simple Admin</h1>
+
+    <div id="auth" class="card">
+        <h3>Auth</h3>
+        <div id="user-info" class="muted"></div>
+        <div id="auth-forms">
+            <div class="row auth-stack">
+                <div class="col">
+                    <label>Sign up</label>
+                    <input id="signup-email" placeholder="Email for signup" />
+                    <div class="pwd-wrap">
+                        <input id="signup-pass" placeholder="Password" type="password"/>
+                        <button type="button" class="pwd-toggle" onclick="togglePwd('signup-pass', this)">Show</button>
+                    </div>
+                    <button id="btn-signup">Sign up</button>
+                </div>
+                <div class="col">
+                    <label>Sign in</label>
+                    <input id="signin-email" placeholder="Email to sign in" />
+                    <div class="pwd-wrap">
+                        <input id="signin-pass" placeholder="Password" type="password" />
+                        <button type="button" class="pwd-toggle" onclick="togglePwd('signin-pass', this)">Show</button>
+                    </div>
+                    <button id="btn-signin">Sign in</button>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:10px;">
+            <button id="btn-logout" class="ghost" style="display:none">Logout</button>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display:none">
+        <div class="card">
+            <h3>Create Project</h3>
+            <div class="row">
+                <input id="project-title" placeholder="Project title" />
+                <div class="small">
+                    <button id="btn-create-project" class="full">Create</button>
+                </div>
+            </div>
+            <textarea id="project-desc" placeholder="Description"></textarea>
+        </div>
+
+        <div class="card">
+            <h3>Projects</h3>
+            <div id="projects-list" class="projects-grid">
+                <div class="muted center">No projects</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Tasks (for selected project)</h3>
+            <div class="row">
+                <select id="select-project" class="col"></select>
+                <div class="small"><button id="btn-refresh-projects" class="full">Refresh</button></div>
+            </div>
+
+            <div class="row">
+                <input id="task-title" placeholder="Task title"/>
+                <input id="task-assigned" placeholder="Assign to (user id uuid)"/>
+            </div>
+            <textarea id="task-details" placeholder="Details"></textarea>
+            <button id="btn-create-task">Create Task</button>
+            <div id="tasks-list" style="margin-top:12px"></div>
+        </div>
+
+        <div id="admin-panel" class="card" style="display:none">
+            <h3>Admin — Manage Roles</h3>
+            <div class="row">
+                <input id="role-user-id" placeholder="User id (uuid)" />
+                <select id="role-select" class="small">
+                    <option value="admin">admin</option>
+                    <option value="manager">manager</option>
+                    <option value="worker">worker</option>
+                </select>
+                <div class="small">
+                    <button id="btn-add-role" class="full">Add</button>
+                    <button id="btn-remove-role" class="full ghost" style="margin-top:6px">Remove</button>
+                </div>
+            </div>
+            <hr/>
+            <h4>Current User Roles</h4>
+            <div id="my-roles" class="helper"></div>
+        </div>
+    </div>
+
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+        // ======= CONFIG - replace these with your project values ========
+        const SUPABASE_URL = "https://SUPABASE_URL.supabase.co"; // example
+        const SUPABASE_ANON_KEY = "SUPABASE_ANON_KEY";
+        // ===============================================================
+
+        // Use the UMD global correctly (lowercase 'supabase' is the global factory)
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function show(selector, yes=true){
+            const el = document.getElementById(selector);
+            if (!el) return;
+            el.style.display = yes ? '' : 'none';
+        }
+
+        // simple show/hide password helper
+        function togglePwd(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = 'Hide';
+            } else {
+                input.type = 'password';
+                btn.textContent = 'Show';
+            }
+        }
+
+        const userInfo = document.getElementById('user-info');
+        const authForms = document.getElementById('auth-forms');
+        const btnSignup = document.getElementById('btn-signup');
+        const btnSignin = document.getElementById('btn-signin');
+        const btnLogout = document.getElementById('btn-logout');
+        const dashboard = document.getElementById('dashboard');
+        const adminPanel = document.getElementById('admin-panel');
+
+        btnSignup.onclick = async () => {
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-pass').value;
+            if (!email || !password) return alert('Provide email & password');
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) return alert('Signup error: ' + error.message);
+            alert('Sign up successful — check your email to confirm (if enabled). After confirm, sign in.');
+        };
+
+        btnSignin.onclick = async () => {
+            const email = document.getElementById('signin-email').value.trim();
+            const password = document.getElementById('signin-pass').value;
+            if (!email || !password) return alert('Provide email & password');
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) return alert('Sign in error: ' + error.message);
+            await refreshUI();
+        };
+
+        btnLogout.onclick = async () => {
+            await supabase.auth.signOut();
+            await refreshUI();
+        };
+
+        async function ensureProfile(user) {
+            if (!user) return;
+            const { data } = await supabase.from('profiles').select('id').eq('id', user.id).limit(1);
+            if (!data || data.length === 0) {
+                await supabase.from('profiles').insert({ id: user.id, full_name: (user.email || '').split('@')[0] || '' });
+            }
+        }
+
+        async function loadProjects() {
+            const projectSel = document.getElementById('select-project');
+            projectSel.innerHTML = '<option value="">Loading...</option>';
+            const { data, error } = await supabase.from('projects').select('*').order('created_at', {ascending:false});
+            projectSel.innerHTML = '<option value="">-- Select Project --</option>';
+            const list = document.getElementById('projects-list');
+            list.innerHTML = '';
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<div class="muted center">No projects yet</div>';
+                return [];
+            }
+            data.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'project-card';
+                el.innerHTML = `<strong>${escapeHtml(p.title)}</strong> <div class="muted">${p.status || ''}</div><div class="helper">${escapeHtml(p.description || '')}</div>`;
+                list.appendChild(el);
+                const opt = document.createElement('option');
+                opt.value = p.id; opt.text = p.title;
+                projectSel.appendChild(opt);
+            });
+            return data;
+        }
+
+        async function loadTasks(project_id) {
+            if (!project_id) return;
+            const { data, error } = await supabase.from('tasks').select('*').eq('project_id', project_id).order('created_at', {ascending:false});
+            const tasksList = document.getElementById('tasks-list');
+            tasksList.innerHTML = '';
+            if (!data || data.length === 0) {
+                tasksList.innerHTML = '<div class="muted">No tasks</div>';
+                return;
+            }
+            data.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `<strong>${escapeHtml(t.title)}</strong> <div class="muted">Assigned to: ${escapeHtml(t.assigned_to || '—')}</div><div class="helper">${escapeHtml(t.details || '')}</div><div class="muted">Status: ${escapeHtml(t.status || 'open')}</div>`;
+                tasksList.appendChild(div);
+            });
+        }
+
+        document.getElementById('btn-create-project').onclick = async () => {
+            const title = document.getElementById('project-title').value.trim();
+            const description = document.getElementById('project-desc').value.trim();
+            if (!title) return alert('Project needs a title');
+            const { data: tokenData } = await supabase.auth.getUser();
+            const user = tokenData && tokenData.user ? tokenData.user : null;
+            if (!user) return alert('Sign in first');
+            const { error } = await supabase.from('projects').insert([{ title, description, created_by: user.id }]);
+            if (error) return alert('Create project error: ' + error.message);
+            document.getElementById('project-title').value = '';
+            document.getElementById('project-desc').value = '';
+            await loadProjects();
+        };
+
+        document.getElementById('btn-create-task').onclick = async () => {
+            const project_id = document.getElementById('select-project').value;
+            if (!project_id) return alert('Select project first');
+            const title = document.getElementById('task-title').value.trim();
+            const details = document.getElementById('task-details').value.trim();
+            const assigned_to = document.getElementById('task-assigned').value.trim() || null;
+            if (!title) return alert('Task needs a title');
+            const { error } = await supabase.from('tasks').insert([{ project_id, title, details, assigned_to }]);
+            if (error) return alert('Create task error: ' + error.message);
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-details').value = '';
+            document.getElementById('task-assigned').value = '';
+            await loadTasks(project_id);
+        };
+
+        document.getElementById('btn-refresh-projects').onclick = async () => {
+            await loadProjects();
+        };
+
+        document.getElementById('btn-add-role').onclick = async () => {
+            const user_id = document.getElementById('role-user-id').value.trim();
+            const role = document.getElementById('role-select').value;
+            if (!user_id) return alert('Provide user id');
+            const { error } = await supabase.from('user_roles').insert([{ user_id, role }]);
+            if (error) return alert('Add role error: ' + error.message);
+            alert('Role added');
+            await showMyRoles();
+        };
+
+        document.getElementById('btn-remove-role').onclick = async () => {
+            const user_id = document.getElementById('role-user-id').value.trim();
+            const role = document.getElementById('role-select').value;
+            if (!user_id) return alert('Provide user id');
+            const { error } = await supabase.from('user_roles').delete().match({ user_id, role });
+            if (error) return alert('Remove role error: ' + error.message);
+            alert('Role removed');
+            await showMyRoles();
+        };
+
+        async function showMyRoles() {
+            const tokenRes = await supabase.auth.getUser();
+            const me = tokenRes && tokenRes.data ? tokenRes.data.user : null;
+            const container = document.getElementById('my-roles');
+            if (!me) {
+                container.innerHTML = '<span class="muted">Not signed in</span>';
+                return;
+            }
+            const { data } = await supabase.from('user_roles').select('*').eq('user_id', me.id);
+            if (!data || data.length === 0) {
+                container.innerHTML = '<span class="muted">No roles</span>';
+                return;
+            }
+            container.innerHTML = data.map(r => `<span class="role-badge">${escapeHtml(r.role)}</span>`).join(' ');
+        }
+
+        async function refreshUI() {
+            const sessionRes = await supabase.auth.getSession();
+            const user = sessionRes && sessionRes.data && sessionRes.data.session ? sessionRes.data.session.user : null;
+
+            if (!user) {
+                userInfo.innerHTML = '<div class="muted">Please sign in or sign up.</div>';
+                show('auth-forms', true);
+                show('btn-logout', false);
+                show('dashboard', false);
+                show('admin-panel', false);
+                return;
+            }
+
+            await ensureProfile(user);
+
+            show('auth-forms', false);
+            show('btn-logout', true);
+            show('dashboard', true);
+
+            userInfo.innerHTML = `<div><strong>${escapeHtml(user.email)}</strong><br/><small class="muted">id: ${escapeHtml(user.id)}</small></div>`;
+
+            await loadProjects();
+            await showMyRoles();
+
+            // check admin role via RPC - guard errors
+            const rpc = await supabase.rpc('private.has_role', { p_user: user.id, p_role: 'admin' });
+            const isAdmin = rpc && (rpc.data === true || (Array.isArray(rpc.data) && rpc.data[0] === true));
+            adminPanel.style.display = isAdmin ? '' : 'none';
+        }
+
+        document.getElementById('select-project').onchange = async (e) => {
+            const v = e.target.value;
+            if (v) await loadTasks(v);
+            else document.getElementById('tasks-list').innerHTML = '';
+        };
+
+        // listen to auth state changes
+        supabase.auth.onAuthStateChange(() => refreshUI());
+
+        // initial
+        refreshUI();
+
+        // small helpers
+        function escapeHtml(s) {
+            if (!s && s !== 0) return '';
+            return String(s)
+                .replaceAll('&','&amp;')
+                .replaceAll('<','&lt;')
+                .replaceAll('>','&gt;')
+                .replaceAll('"','&quot;')
+                .replaceAll("'",'&#39;');
+        }
+    </script>
+</body>
+</html>
+>>>>>>> fc3e5fd4bcdb220cb069505160dc17734810e804
